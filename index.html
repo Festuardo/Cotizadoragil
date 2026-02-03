@@ -609,26 +609,26 @@
                 <div class="form-group">
                     <label for="monto">Monto del crédito (Quetzales)</label>
                     <div class="input-wrapper currency-symbol">
-                        <input type="text" id="monto" inputmode="decimal" pattern="[0-9,]*" 
-                               placeholder="Ej: 10,000" value="10,000" class="currency-input">
+                        <input type="text" id="monto" inputmode="decimal" 
+                               placeholder="Ej: 10000" class="currency-input">
                     </div>
-                    <div class="input-info">Usa comas para los miles</div>
+                    <div class="input-info">Ingresa el monto sin comas ni puntos</div>
                 </div>
                 
                 <div class="form-group">
                     <label for="plazo">Plazo (meses)</label>
-                    <input type="text" id="plazo" inputmode="numeric" pattern="[0-9]*" 
-                           placeholder="Ej: 12" value="12">
+                    <input type="text" id="plazo" inputmode="numeric" 
+                           placeholder="Ej: 12">
                     <div class="input-info">Número de meses del crédito</div>
                 </div>
                 
                 <div class="form-group">
                     <label for="tasa">Tasa de interés anual</label>
                     <div class="input-wrapper percentage-symbol">
-                        <input type="text" id="tasa" inputmode="decimal" pattern="[0-9.,]*" 
-                               placeholder="Ej: 12.5" value="12" class="percentage-input">
+                        <input type="text" id="tasa" inputmode="decimal" 
+                               placeholder="Ej: 12.5" class="percentage-input">
                     </div>
-                    <div class="input-info">Puedes usar punto o coma decimal</div>
+                    <div class="input-info">Ingresa la tasa de interés</div>
                 </div>
                 
                 <div class="form-group">
@@ -749,25 +749,11 @@
                 });
             });
             
-            // Función para formatear entrada numérica con comas
-            function formatearEntradaNumero(valor) {
-                // Eliminar todos los caracteres no numéricos excepto comas
-                let limpiado = valor.replace(/[^\d,]/g, '');
-                
-                // Formatear con comas para miles
-                const partes = limpiado.split(',');
-                let parteEntera = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                
-                if (partes.length > 1) {
-                    return parteEntera + ',' + partes.slice(1).join('');
-                }
-                
-                return parteEntera;
-            }
-            
             // Función para formatear número con comas como separador de miles
             function formatearNumeroConComas(numero, decimales = 2) {
-                if (isNaN(numero) || numero === null || numero === '') return '0.00';
+                if (isNaN(numero) || numero === null || numero === '' || numero === 0) {
+                    return decimales === 0 ? '0' : '0.00';
+                }
                 
                 // Asegurar que sea un número
                 const num = parseFloat(numero);
@@ -781,27 +767,25 @@
                 return `Q ${formatearNumeroConComas(valor, 2)}`;
             }
             
-            // Eventos para formatear entradas en tiempo real
+            // Eventos para inputs - solo números, sin autoformato
             montoInput.addEventListener('input', function(e) {
                 let valor = e.target.value;
-                
-                // Guardar posición del cursor
-                const cursorPos = e.target.selectionStart;
-                
-                // Formatear el valor
-                e.target.value = formatearEntradaNumero(valor);
-                
-                // Restaurar posición del cursor (aproximadamente)
-                setTimeout(() => {
-                    e.target.selectionStart = cursorPos;
-                    e.target.selectionEnd = cursorPos;
-                }, 0);
+                // Solo permitir números
+                e.target.value = valor.replace(/[^\d]/g, '');
             });
             
             tasaInput.addEventListener('input', function(e) {
                 let valor = e.target.value;
-                // Permitir números, puntos y comas
-                e.target.value = valor.replace(/[^\d.,]/g, '');
+                // Permitir números y un solo punto decimal
+                valor = valor.replace(/[^\d.]/g, '');
+                
+                // Asegurar solo un punto decimal
+                const partes = valor.split('.');
+                if (partes.length > 2) {
+                    e.target.value = partes[0] + '.' + partes.slice(1).join('');
+                } else {
+                    e.target.value = valor;
+                }
             });
             
             plazoInput.addEventListener('input', function(e) {
@@ -810,13 +794,10 @@
                 e.target.value = valor.replace(/\D/g, '');
             });
             
-            // Convertir entrada formateada a número
-            function entradaANumero(valorFormateado) {
-                if (!valorFormateado) return 0;
-                
-                // Eliminar comas y convertir a número
-                const valorLimpio = valorFormateado.replace(/,/g, '');
-                return parseFloat(valorLimpio) || 0;
+            // Convertir entrada a número
+            function entradaANumero(valor) {
+                if (!valor || valor.trim() === '') return 0;
+                return parseFloat(valor) || 0;
             }
             
             // Calcular cuota sobre saldos
@@ -869,11 +850,11 @@
                 const monto = entradaANumero(montoInput.value);
                 const plazo = parseInt(plazoInput.value) || 0;
                 
-                // Procesar tasa (puede tener coma o punto decimal)
-                let tasaTexto = tasaInput.value.replace(/,/g, '.');
+                // Procesar tasa (puede tener punto decimal)
+                let tasaTexto = tasaInput.value;
                 const tasaAnual = parseFloat(tasaTexto) || 0;
                 
-                // Validaciones para móvil
+                // Validaciones
                 if (!monto || monto <= 0) {
                     alert('⚠️ Ingrese un monto válido');
                     montoInput.focus();
@@ -911,7 +892,7 @@
                         resultado = calcularCuotaNivelada(monto, plazo, tasaMensual);
                     }
                     
-                    // Actualizar resultados
+                    // Formatear resultados con comas y puntos
                     resultMonto.textContent = formatoMonedaQuetzal(monto);
                     resultPlazo.textContent = `${formatearNumeroConComas(plazo, 0)} meses`;
                     resultTasa.textContent = `${formatearNumeroConComas(tasaAnual, 2)}% anual`;
@@ -939,9 +920,9 @@
             
             // Limpiar formulario
             function limpiarFormulario() {
-                montoInput.value = '10,000';
-                plazoInput.value = '12';
-                tasaInput.value = '12';
+                montoInput.value = '';
+                plazoInput.value = '';
+                tasaInput.value = '';
                 
                 // Reset radio buttons
                 radioOptions.forEach(opt => opt.classList.remove('selected'));
@@ -967,7 +948,7 @@
                 }, 150);
             }
             
-            // Compartir por WhatsApp
+            // Compartir por WhatsApp - Sin títulos FGARCIA
             function compartirWhatsApp() {
                 const monto = resultMonto.textContent;
                 const plazo = resultPlazo.textContent;
@@ -980,7 +961,8 @@
                 
                 const tipoCuota = tipoCuotaHidden.value === 'sobre-saldos' ? 'Cuota sobre saldos' : 'Cuota nivelada';
                 
-                const mensaje = `*COTIZADOR DE CRÉDITOS FGARCIA*%0A%0A` +
+                // Mensaje sin títulos FGARCIA
+                const mensaje = `*COTIZADOR DE CRÉDITOS*%0A%0A` +
                                `*Monto:* ${monto}%0A` +
                                `*Plazo:* ${plazo}%0A` +
                                `*Tasa:* ${tasa}%0A` +
@@ -990,8 +972,7 @@
                                `• Primer pago: ${primer}%0A` +
                                `• Último pago: ${ultimo}%0A` +
                                `• Total intereses: ${intereses}%0A` +
-                               `• Total a pagar: ${total}%0A%0A` +
-                               `_Calculado con Cotizador FGARCIA_`;
+                               `• Total a pagar: ${total}`;
                 
                 window.open(`https://wa.me/?text=${mensaje}`, '_blank');
                 
@@ -1022,9 +1003,6 @@
                     event.preventDefault();
                 }
             }, { passive: false });
-            
-            // Calcular al cargar
-            calcularCotizacion();
             
             // Optimización para teclado virtual en iOS
             document.addEventListener('focusin', function(e) {
