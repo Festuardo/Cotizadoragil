@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COTIZADOR DE CRÉDITOS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset Mobile-First */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        html {
+            font-size: 16px;
+            height: 100%;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #f5f9ff 0%, #e8f4ff 100%);
+            color: #333;
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        /* Header Mobile Optimizado */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px 15px;
+            background: linear-gradient(135deg, #1e5c43 0%, #2a8c5e 100%);
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(30, 92, 67, 0.25);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .tagline {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-weight: 300;
+        }
+        
+        /* Contenido Principal - Mobile First */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
+        .form-section, .results-section {
+            background: white;
+            padding: 20px 15px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+        
+        .form-section:active, .results-section:active {
+            transform: translateY(-2px);
+        }
+        
+        h2 {
+            color: #1e5c43;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eef8f3;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2 i {
+            font-size: 1.1rem;
+        }
+        
+        /* Formulario Optimizado para Touch */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 16px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            -webkit-appearance: none;
+            appearance: none;
+            font-weight: 500;
+        }
+        
+        input:focus, select:focus {
+            border-color: #2a8c5e;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(42, 140, 94, 0.1);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            flex: 1;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .radio-option:active {
+            transform: scale(0.98);
+        }
+        
+        .radio-option.selected {
+            background: #e8f5ee;
+            border-color: #2a8c5e;
+        }
+        
+        .radio-option input {
+            display: none;
+        }
+        
+        .radio-option .radio-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .radio-option.selected .radio-custom {
+            border-color: #2a8c5e;
+            background: #2a8c5e;
+        }
+        
+        .radio-option.selected .radio-custom::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .radio-option label {
+            margin: 0;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* Botones Optimizados para Touch */
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 56px;
+        }
+        
+        button:active {
+            transform: translateY(2px);
+        }
+        
+        .btn-calculate {
+            background: linear-gradient(135deg, #2a8c5e 0%, #1e5c43 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(42, 140, 94, 0.3);
+        }
+        
+        .btn-calculate:active {
+            box-shadow: 0 2px 8px rgba(42, 140, 94, 0.3);
+        }
+        
+        .btn-clear {
+            background: #f5f5f5;
+            color: #555;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-clear:active {
+            background: #e8e8e8;
+        }
+        
+        .btn-share {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .btn-share:active {
+            box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+        }
+        
+        /* Resultados Optimizados para Mobile */
+        .results-container {
+            margin-top: 15px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #f8fffb 0%, #f0f9f4 100%);
+            border-radius: 12px;
+            border-left: 5px solid #2a8c5e;
+        }
+        
+        .result-item.highlight {
+            background: linear-gradient(135deg, #e8f5ee 0%, #d4ecdf 100%);
+            font-weight: bold;
+            border-left: 5px solid #25D366;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15);
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #1e5c43;
+            font-size: 0.95rem;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #222;
+            text-align: right;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        
+        .payment-details {
+            background: linear-gradient(135deg, #f0f9f4 0%, #e8f5ee 100%);
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid #d4ecdf;
+        }
+        
+        .payment-details h3 {
+            color: #1e5c43;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .payment-details p {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(30, 92, 67, 0.1);
+        }
+        
+        .payment-details p:last-child {
+            border-bottom: none;
+        }
+        
+        .payment-details .amount {
+            font-weight: bold;
+            color: #2a8c5e;
+            font-size: 1.05rem;
+        }
+        
+        /* Footer Mobile */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px 15px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .copyright {
+            margin-top: 8px;
+            font-weight: 700;
+            color: #1e5c43;
+            font-size: 0.9rem;
+        }
+        
+        /* Loading Spinner Mobile */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #2a8c5e;
+            animation: spin 1s ease infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Estilos específicos para inputs */
+        .currency-symbol, .percentage-symbol {
+            position: relative;
+        }
+        
+        .currency-symbol::before {
+            content: 'Q';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #1e5c43;
+            z-index: 1;
+            font-size: 1.1rem;
+        }
+        
+        .currency-input {
+            padding-left: 45px !important;
+        }
+        
+        .percentage-symbol::after {
+            content: '%';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #1e5c43;
+            z-index: 1;
+            font-size: 1.1rem;
+        }
+        
+        .percentage-input {
+            padding-right: 45px !important;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 6px;
+            font-style: italic;
+            padding-left: 5px;
+        }
+        
+        /* Mejoras para teclado virtual */
+        input[type="text"], input[type="number"] {
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Swipe y touch improvements */
+        .form-section, .results-section {
+            touch-action: pan-y;
+        }
+        
+        /* Safe areas para iPhone X y superiores */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+                padding-top: max(15px, env(safe-area-inset-top));
+                padding-bottom: max(15px, env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* Animaciones para resultados */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-item, .payment-details {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        /* Media Queries para tablets */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+                justify-content: center;
+            }
+            
+            .container {
+                max-width: 700px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .tagline {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                gap: 25px;
+            }
+            
+            .form-section, .results-section {
+                padding: 25px 20px;
+            }
+            
+            .buttons {
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            button {
+                min-height: 60px;
+            }
+            
+            .radio-group {
+                gap: 20px;
+            }
+            
+            .radio-option {
+                min-width: 160px;
+            }
+        }
+        
+        /* Media Queries para desktop */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 900px;
+            }
+            
+            .content {
+                flex-direction: row;
+                gap: 30px;
+            }
+            
+            .form-section, .results-section {
+                flex: 1;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        /* Mejoras para orientación horizontal en móviles */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            .form-section, .results-section {
+                padding: 15px;
+            }
+            
+            input, select {
+                padding: 12px 15px;
+            }
+            
+            button {
+                padding: 14px;
+                min-height: 50px;
+            }
+        }
+        
+        /* Estilo para placeholder */
+        ::placeholder {
+            color: #999;
+            opacity: 0.7;
+        }
+        
+        /* Prevenir zoom en iOS */
+        input, select, textarea {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> COTIZADOR DE CRÉDITOS</h1>
+            <p class="tagline">Calcula tu crédito fácil y rápido</p>
+        </header>
+        
+        <div class="content">
+            <section class="form-section">
+                <h2><i class="fas fa-edit"></i> Datos del Crédito</h2>
+                
+                <div class="form-group">
+                    <label for="monto">Monto del crédito (Quetzales)</label>
+                    <div class="input-wrapper currency-symbol">
+                        <input type="text" id="monto" inputmode="decimal" pattern="[0-9,]*" 
+                               placeholder="Ej: 10,000" value="10,000" class="currency-input">
+                    </div>
+                    <div class="input-info">Usa comas para los miles</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plazo">Plazo (meses)</label>
+                    <input type="text" id="plazo" inputmode="numeric" pattern="[0-9]*" 
+                           placeholder="Ej: 12" value="12">
+                    <div class="input-info">Número de meses del crédito</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tasa">Tasa de interés anual</label>
+                    <div class="input-wrapper percentage-symbol">
+                        <input type="text" id="tasa" inputmode="decimal" pattern="[0-9.,]*" 
+                               placeholder="Ej: 12.5" value="12" class="percentage-input">
+                    </div>
+                    <div class="input-info">Puedes usar punto o coma decimal</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo de amortización</label>
+                    <div class="radio-group">
+                        <div class="radio-option selected" data-value="sobre-saldos">
+                            <div class="radio-custom"></div>
+                            <label for="cuota-sobre-saldos">Cuota sobre saldos</label>
+                        </div>
+                        <div class="radio-option" data-value="nivelada">
+                            <div class="radio-custom"></div>
+                            <label for="cuota-nivelada">Cuota nivelada</label>
+                        </div>
+                    </div>
+                    <input type="hidden" id="tipo-cuota" value="sobre-saldos">
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn-calculate" id="btn-calcular">
+                        <i class="fas fa-calculator"></i> Calcular
+                    </button>
+                    <button class="btn-clear" id="btn-limpiar">
+                        <i class="fas fa-broom"></i> Limpiar
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Calculando cuotas...</p>
+                </div>
+            </section>
+            
+            <section class="results-section">
+                <h2><i class="fas fa-chart-line"></i> Resultados</h2>
+                
+                <div class="results-container" id="resultados">
+                    <div class="result-item">
+                        <span class="result-label">Monto:</span>
+                        <span class="result-value" id="result-monto">Q 0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Plazo:</span>
+                        <span class="result-value" id="result-plazo">0 meses</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Tasa:</span>
+                        <span class="result-value" id="result-tasa">0% anual</span>
+                    </div>
+                    
+                    <div class="result-item highlight">
+                        <span class="result-label">Cuota fija:</span>
+                        <span class="result-value" id="result-cuota">Q 0.00</span>
+                    </div>
+                    
+                    <div class="payment-details" id="detalles-pago" style="display: none;">
+                        <h3><i class="fas fa-file-invoice-dollar"></i> Detalles del pago</h3>
+                        <p>Primer pago: <span class="amount" id="primer-pago">Q 0.00</span></p>
+                        <p>Último pago: <span class="amount" id="ultimo-pago">Q 0.00</span></p>
+                        <p>Total intereses: <span class="amount" id="total-intereses">Q 0.00</span></p>
+                        <p style="font-weight: bold; color: #1e5c43;">Total a pagar: <span class="amount" id="total-pagar">Q 0.00</span></p>
+                    </div>
+                </div>
+                
+                <button class="btn-share" id="btn-compartir">
+                    <i class="fab fa-whatsapp"></i> Compartir por WhatsApp
+                </button>
+            </section>
+        </div>
+        
+        <footer>
+            <p>Esta herramienta es de carácter informativo y los resultados son una aproximación.</p>
+            <p class="copyright">COPYRIGHT FGARCIA</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const montoInput = document.getElementById('monto');
+            const plazoInput = document.getElementById('plazo');
+            const tasaInput = document.getElementById('tasa');
+            const tipoCuotaHidden = document.getElementById('tipo-cuota');
+            const radioOptions = document.querySelectorAll('.radio-option');
+            const btnCalcular = document.getElementById('btn-calcular');
+            const btnLimpiar = document.getElementById('btn-limpiar');
+            const btnCompartir = document.getElementById('btn-compartir');
+            const loading = document.getElementById('loading');
+            const resultadosDiv = document.getElementById('resultados');
+            const detallesPagoDiv = document.getElementById('detalles-pago');
+            
+            // Elementos de resultados
+            const resultMonto = document.getElementById('result-monto');
+            const resultPlazo = document.getElementById('result-plazo');
+            const resultTasa = document.getElementById('result-tasa');
+            const resultCuota = document.getElementById('result-cuota');
+            const primerPago = document.getElementById('primer-pago');
+            const ultimoPago = document.getElementById('ultimo-pago');
+            const totalIntereses = document.getElementById('total-intereses');
+            const totalPagar = document.getElementById('total-pagar');
+            
+            // Configurar radio buttons personalizados
+            radioOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remover selección previa
+                    radioOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Seleccionar actual
+                    this.classList.add('selected');
+                    tipoCuotaHidden.value = this.dataset.value;
+                    
+                    // Feedback táctil
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+            
+            // Función para formatear entrada numérica con comas
+            function formatearEntradaNumero(valor) {
+                // Eliminar todos los caracteres no numéricos excepto comas
+                let limpiado = valor.replace(/[^\d,]/g, '');
+                
+                // Formatear con comas para miles
+                const partes = limpiado.split(',');
+                let parteEntera = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                if (partes.length > 1) {
+                    return parteEntera + ',' + partes.slice(1).join('');
+                }
+                
+                return parteEntera;
+            }
+            
+            // Función para formatear número con comas como separador de miles
+            function formatearNumeroConComas(numero, decimales = 2) {
+                if (isNaN(numero) || numero === null || numero === '') return '0.00';
+                
+                // Asegurar que sea un número
+                const num = parseFloat(numero);
+                
+                // Formatear con comas para miles y punto para decimales
+                return num.toFixed(decimales).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            }
+            
+            // Función para formatear como moneda en Quetzales
+            function formatoMonedaQuetzal(valor) {
+                return `Q ${formatearNumeroConComas(valor, 2)}`;
+            }
+            
+            // Eventos para formatear entradas en tiempo real
+            montoInput.addEventListener('input', function(e) {
+                let valor = e.target.value;
+                
+                // Guardar posición del cursor
+                const cursorPos = e.target.selectionStart;
+                
+                // Formatear el valor
+                e.target.value = formatearEntradaNumero(valor);
+                
+                // Restaurar posición del cursor (aproximadamente)
+                setTimeout(() => {
+                    e.target.selectionStart = cursorPos;
+                    e.target.selectionEnd = cursorPos;
+                }, 0);
+            });
+            
+            tasaInput.addEventListener('input', function(e) {
+                let valor = e.target.value;
+                // Permitir números, puntos y comas
+                e.target.value = valor.replace(/[^\d.,]/g, '');
+            });
+            
+            plazoInput.addEventListener('input', function(e) {
+                let valor = e.target.value;
+                // Solo números
+                e.target.value = valor.replace(/\D/g, '');
+            });
+            
+            // Convertir entrada formateada a número
+            function entradaANumero(valorFormateado) {
+                if (!valorFormateado) return 0;
+                
+                // Eliminar comas y convertir a número
+                const valorLimpio = valorFormateado.replace(/,/g, '');
+                return parseFloat(valorLimpio) || 0;
+            }
+            
+            // Calcular cuota sobre saldos
+            function calcularCuotaSobreSaldos(monto, plazo, tasaMensual) {
+                let saldo = monto;
+                const cuotaCapital = monto / plazo;
+                let primerPago = 0;
+                let ultimoPago = 0;
+                let totalIntereses = 0;
+                
+                for (let i = 1; i <= plazo; i++) {
+                    const interes = saldo * tasaMensual;
+                    totalIntereses += interes;
+                    const cuota = cuotaCapital + interes;
+                    
+                    if (i === 1) primerPago = cuota;
+                    if (i === plazo) ultimoPago = cuota;
+                    
+                    saldo -= cuotaCapital;
+                }
+                
+                const cuotaPromedio = (monto + totalIntereses) / plazo;
+                
+                return {
+                    cuotaPromedio,
+                    primerPago,
+                    ultimoPago,
+                    totalIntereses
+                };
+            }
+            
+            // Calcular cuota nivelada
+            function calcularCuotaNivelada(monto, plazo, tasaMensual) {
+                // Fórmula para cuota nivelada
+                const factor = Math.pow(1 + tasaMensual, plazo);
+                const cuota = monto * (tasaMensual * factor) / (factor - 1);
+                const totalIntereses = (cuota * plazo) - monto;
+                
+                return {
+                    cuotaFija: cuota,
+                    primerPago: cuota,
+                    ultimoPago: cuota,
+                    totalIntereses
+                };
+            }
+            
+            // Función principal de cálculo
+            function calcularCotizacion() {
+                // Obtener y convertir valores
+                const monto = entradaANumero(montoInput.value);
+                const plazo = parseInt(plazoInput.value) || 0;
+                
+                // Procesar tasa (puede tener coma o punto decimal)
+                let tasaTexto = tasaInput.value.replace(/,/g, '.');
+                const tasaAnual = parseFloat(tasaTexto) || 0;
+                
+                // Validaciones para móvil
+                if (!monto || monto <= 0) {
+                    alert('⚠️ Ingrese un monto válido');
+                    montoInput.focus();
+                    return;
+                }
+                
+                if (!plazo || plazo <= 0) {
+                    alert('⚠️ Ingrese un plazo válido');
+                    plazoInput.focus();
+                    return;
+                }
+                
+                if (!tasaAnual || tasaAnual <= 0) {
+                    alert('⚠️ Ingrese una tasa válida');
+                    tasaInput.focus();
+                    return;
+                }
+                
+                // Mostrar loading
+                loading.style.display = 'block';
+                resultadosDiv.style.opacity = '0.5';
+                
+                // Simular tiempo de procesamiento
+                setTimeout(() => {
+                    const tipoCuota = tipoCuotaHidden.value;
+                    
+                    // Convertir tasa anual a mensual
+                    const tasaMensual = tasaAnual / 100 / 12;
+                    
+                    let resultado;
+                    
+                    if (tipoCuota === 'sobre-saldos') {
+                        resultado = calcularCuotaSobreSaldos(monto, plazo, tasaMensual);
+                    } else {
+                        resultado = calcularCuotaNivelada(monto, plazo, tasaMensual);
+                    }
+                    
+                    // Actualizar resultados
+                    resultMonto.textContent = formatoMonedaQuetzal(monto);
+                    resultPlazo.textContent = `${formatearNumeroConComas(plazo, 0)} meses`;
+                    resultTasa.textContent = `${formatearNumeroConComas(tasaAnual, 2)}% anual`;
+                    
+                    const cuotaMostrar = tipoCuota === 'sobre-saldos' ? resultado.cuotaPromedio : resultado.cuotaFija;
+                    resultCuota.textContent = formatoMonedaQuetzal(cuotaMostrar);
+                    
+                    primerPago.textContent = formatoMonedaQuetzal(resultado.primerPago);
+                    ultimoPago.textContent = formatoMonedaQuetzal(resultado.ultimoPago);
+                    totalIntereses.textContent = formatoMonedaQuetzal(resultado.totalIntereses);
+                    totalPagar.textContent = formatoMonedaQuetzal(monto + resultado.totalIntereses);
+                    
+                    // Mostrar resultados
+                    loading.style.display = 'none';
+                    resultadosDiv.style.opacity = '1';
+                    detallesPagoDiv.style.display = 'block';
+                    
+                    // Scroll suave a resultados en móvil
+                    if (window.innerWidth < 768) {
+                        detallesPagoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    
+                }, 600);
+            }
+            
+            // Limpiar formulario
+            function limpiarFormulario() {
+                montoInput.value = '10,000';
+                plazoInput.value = '12';
+                tasaInput.value = '12';
+                
+                // Reset radio buttons
+                radioOptions.forEach(opt => opt.classList.remove('selected'));
+                document.querySelector('.radio-option[data-value="sobre-saldos"]').classList.add('selected');
+                tipoCuotaHidden.value = 'sobre-saldos';
+                
+                // Reset resultados
+                resultMonto.textContent = 'Q 0.00';
+                resultPlazo.textContent = '0 meses';
+                resultTasa.textContent = '0% anual';
+                resultCuota.textContent = 'Q 0.00';
+                primerPago.textContent = 'Q 0.00';
+                ultimoPago.textContent = 'Q 0.00';
+                totalIntereses.textContent = 'Q 0.00';
+                totalPagar.textContent = 'Q 0.00';
+                
+                detallesPagoDiv.style.display = 'none';
+                
+                // Feedback táctil
+                btnLimpiar.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btnLimpiar.style.transform = '';
+                }, 150);
+            }
+            
+            // Compartir por WhatsApp
+            function compartirWhatsApp() {
+                const monto = resultMonto.textContent;
+                const plazo = resultPlazo.textContent;
+                const tasa = resultTasa.textContent;
+                const cuota = resultCuota.textContent;
+                const primer = primerPago.textContent;
+                const ultimo = ultimoPago.textContent;
+                const intereses = totalIntereses.textContent;
+                const total = totalPagar.textContent;
+                
+                const tipoCuota = tipoCuotaHidden.value === 'sobre-saldos' ? 'Cuota sobre saldos' : 'Cuota nivelada';
+                
+                const mensaje = `*COTIZADOR DE CRÉDITOS FGARCIA*%0A%0A` +
+                               `*Monto:* ${monto}%0A` +
+                               `*Plazo:* ${plazo}%0A` +
+                               `*Tasa:* ${tasa}%0A` +
+                               `*Tipo:* ${tipoCuota}%0A` +
+                               `*Cuota fija:* ${cuota}%0A%0A` +
+                               `*Detalles:*%0A` +
+                               `• Primer pago: ${primer}%0A` +
+                               `• Último pago: ${ultimo}%0A` +
+                               `• Total intereses: ${intereses}%0A` +
+                               `• Total a pagar: ${total}%0A%0A` +
+                               `_Calculado con Cotizador FGARCIA_`;
+                
+                window.open(`https://wa.me/?text=${mensaje}`, '_blank');
+                
+                // Feedback táctil
+                btnCompartir.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btnCompartir.style.transform = '';
+                }, 150);
+            }
+            
+            // Event listeners optimizados para touch
+            btnCalcular.addEventListener('click', calcularCotizacion);
+            btnLimpiar.addEventListener('click', limpiarFormulario);
+            btnCompartir.addEventListener('click', compartirWhatsApp);
+            
+            // Calcular con Enter
+            [montoInput, plazoInput, tasaInput].forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        calcularCotizacion();
+                    }
+                });
+            });
+            
+            // Prevenir zoom en iOS al hacer doble tap
+            document.addEventListener('touchstart', function(event) {
+                if (event.touches.length > 1) {
+                    event.preventDefault();
+                }
+            }, { passive: false });
+            
+            // Calcular al cargar
+            calcularCotizacion();
+            
+            // Optimización para teclado virtual en iOS
+            document.addEventListener('focusin', function(e) {
+                if (window.innerWidth < 768 && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+                    setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
