@@ -356,6 +356,23 @@
             font-size: 1.05rem;
         }
         
+        /* Estilos específicos para tipos de pago */
+        .payment-item {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #f8fffb 0%, #f0f9f4 100%);
+            border-radius: 12px;
+            border-left: 5px solid #2a8c5e;
+        }
+        
+        .payment-item.show {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
         /* Footer Mobile */
         footer {
             text-align: center;
@@ -680,15 +697,30 @@
                         <span class="result-value" id="result-tasa">0% anual</span>
                     </div>
                     
-                    <div class="result-item highlight">
-                        <span class="result-label">Cuota fija:</span>
-                        <span class="result-value" id="result-cuota">Q 0.00</span>
+                    <div class="result-item">
+                        <span class="result-label">Tipo:</span>
+                        <span class="result-value" id="result-tipo">-</span>
+                    </div>
+                    
+                    <!-- Cuota sobre saldos - Primer y Último pago -->
+                    <div class="payment-item" id="primer-pago-item">
+                        <span class="result-label">Primer pago:</span>
+                        <span class="result-value" id="primer-pago">Q 0.00</span>
+                    </div>
+                    
+                    <div class="payment-item" id="ultimo-pago-item">
+                        <span class="result-label">Último pago:</span>
+                        <span class="result-value" id="ultimo-pago">Q 0.00</span>
+                    </div>
+                    
+                    <!-- Cuota nivelada - Solo Cuota -->
+                    <div class="payment-item" id="cuota-item">
+                        <span class="result-label">Cuota:</span>
+                        <span class="result-value" id="cuota">Q 0.00</span>
                     </div>
                     
                     <div class="payment-details" id="detalles-pago" style="display: none;">
-                        <h3><i class="fas fa-file-invoice-dollar"></i> Detalles del pago</h3>
-                        <p>Primer pago: <span class="amount" id="primer-pago">Q 0.00</span></p>
-                        <p>Último pago: <span class="amount" id="ultimo-pago">Q 0.00</span></p>
+                        <h3><i class="fas fa-file-invoice-dollar"></i> Resumen total</h3>
                         <p>Total intereses: <span class="amount" id="total-intereses">Q 0.00</span></p>
                         <p style="font-weight: bold; color: #1e5c43;">Total a pagar: <span class="amount" id="total-pagar">Q 0.00</span></p>
                     </div>
@@ -725,11 +757,17 @@
             const resultMonto = document.getElementById('result-monto');
             const resultPlazo = document.getElementById('result-plazo');
             const resultTasa = document.getElementById('result-tasa');
-            const resultCuota = document.getElementById('result-cuota');
+            const resultTipo = document.getElementById('result-tipo');
             const primerPago = document.getElementById('primer-pago');
             const ultimoPago = document.getElementById('ultimo-pago');
+            const cuotaItem = document.getElementById('cuota');
             const totalIntereses = document.getElementById('total-intereses');
             const totalPagar = document.getElementById('total-pagar');
+            
+            // Elementos de contenedores de pago
+            const primerPagoItem = document.getElementById('primer-pago-item');
+            const ultimoPagoItem = document.getElementById('ultimo-pago-item');
+            const cuotaItemContainer = document.getElementById('cuota-item');
             
             // Configurar radio buttons personalizados
             radioOptions.forEach(option => {
@@ -804,28 +842,28 @@
             function calcularCuotaSobreSaldos(monto, plazo, tasaMensual) {
                 let saldo = monto;
                 const cuotaCapital = monto / plazo;
-                let primerPago = 0;
-                let ultimoPago = 0;
-                let totalIntereses = 0;
+                let primerPagoValor = 0;
+                let ultimoPagoValor = 0;
+                let totalInteresesValor = 0;
                 
                 for (let i = 1; i <= plazo; i++) {
                     const interes = saldo * tasaMensual;
-                    totalIntereses += interes;
+                    totalInteresesValor += interes;
                     const cuota = cuotaCapital + interes;
                     
-                    if (i === 1) primerPago = cuota;
-                    if (i === plazo) ultimoPago = cuota;
+                    if (i === 1) primerPagoValor = cuota;
+                    if (i === plazo) ultimoPagoValor = cuota;
                     
                     saldo -= cuotaCapital;
                 }
                 
-                const cuotaPromedio = (monto + totalIntereses) / plazo;
+                const cuotaPromedio = (monto + totalInteresesValor) / plazo;
                 
                 return {
-                    cuotaPromedio,
-                    primerPago,
-                    ultimoPago,
-                    totalIntereses
+                    primerPago: primerPagoValor,
+                    ultimoPago: ultimoPagoValor,
+                    totalIntereses: totalInteresesValor,
+                    cuotaPromedio: cuotaPromedio
                 };
             }
             
@@ -834,14 +872,28 @@
                 // Fórmula para cuota nivelada
                 const factor = Math.pow(1 + tasaMensual, plazo);
                 const cuota = monto * (tasaMensual * factor) / (factor - 1);
-                const totalIntereses = (cuota * plazo) - monto;
+                const totalInteresesValor = (cuota * plazo) - monto;
                 
                 return {
-                    cuotaFija: cuota,
-                    primerPago: cuota,
-                    ultimoPago: cuota,
-                    totalIntereses
+                    cuota: cuota,
+                    totalIntereses: totalInteresesValor
                 };
+            }
+            
+            // Función para mostrar/ocultar elementos según tipo de amortización
+            function mostrarElementosPago(tipo) {
+                // Ocultar todos los elementos de pago
+                primerPagoItem.classList.remove('show');
+                ultimoPagoItem.classList.remove('show');
+                cuotaItemContainer.classList.remove('show');
+                
+                // Mostrar elementos según el tipo
+                if (tipo === 'sobre-saldos') {
+                    primerPagoItem.classList.add('show');
+                    ultimoPagoItem.classList.add('show');
+                } else {
+                    cuotaItemContainer.classList.add('show');
+                }
             }
             
             // Función principal de cálculo
@@ -881,6 +933,16 @@
                 setTimeout(() => {
                     const tipoCuota = tipoCuotaHidden.value;
                     
+                    // Mostrar tipo de amortización
+                    if (tipoCuota === 'sobre-saldos') {
+                        resultTipo.textContent = 'Cuota sobre saldos';
+                    } else {
+                        resultTipo.textContent = 'Cuota nivelada';
+                    }
+                    
+                    // Mostrar elementos según tipo
+                    mostrarElementosPago(tipoCuota);
+                    
                     // Convertir tasa anual a mensual
                     const tasaMensual = tasaAnual / 100 / 12;
                     
@@ -888,8 +950,11 @@
                     
                     if (tipoCuota === 'sobre-saldos') {
                         resultado = calcularCuotaSobreSaldos(monto, plazo, tasaMensual);
+                        primerPago.textContent = formatoMonedaQuetzal(resultado.primerPago);
+                        ultimoPago.textContent = formatoMonedaQuetzal(resultado.ultimoPago);
                     } else {
                         resultado = calcularCuotaNivelada(monto, plazo, tasaMensual);
+                        cuotaItem.textContent = formatoMonedaQuetzal(resultado.cuota);
                     }
                     
                     // Formatear resultados con comas y puntos
@@ -897,11 +962,6 @@
                     resultPlazo.textContent = `${formatearNumeroConComas(plazo, 0)} meses`;
                     resultTasa.textContent = `${formatearNumeroConComas(tasaAnual, 2)}% anual`;
                     
-                    const cuotaMostrar = tipoCuota === 'sobre-saldos' ? resultado.cuotaPromedio : resultado.cuotaFija;
-                    resultCuota.textContent = formatoMonedaQuetzal(cuotaMostrar);
-                    
-                    primerPago.textContent = formatoMonedaQuetzal(resultado.primerPago);
-                    ultimoPago.textContent = formatoMonedaQuetzal(resultado.ultimoPago);
                     totalIntereses.textContent = formatoMonedaQuetzal(resultado.totalIntereses);
                     totalPagar.textContent = formatoMonedaQuetzal(monto + resultado.totalIntereses);
                     
@@ -933,12 +993,15 @@
                 resultMonto.textContent = 'Q 0.00';
                 resultPlazo.textContent = '0 meses';
                 resultTasa.textContent = '0% anual';
-                resultCuota.textContent = 'Q 0.00';
+                resultTipo.textContent = '-';
                 primerPago.textContent = 'Q 0.00';
                 ultimoPago.textContent = 'Q 0.00';
+                cuotaItem.textContent = 'Q 0.00';
                 totalIntereses.textContent = 'Q 0.00';
                 totalPagar.textContent = 'Q 0.00';
                 
+                // Ocultar elementos de pago
+                mostrarElementosPago('sobre-saldos');
                 detallesPagoDiv.style.display = 'none';
                 
                 // Feedback táctil
@@ -953,26 +1016,32 @@
                 const monto = resultMonto.textContent;
                 const plazo = resultPlazo.textContent;
                 const tasa = resultTasa.textContent;
-                const cuota = resultCuota.textContent;
-                const primer = primerPago.textContent;
-                const ultimo = ultimoPago.textContent;
+                const tipo = resultTipo.textContent;
                 const intereses = totalIntereses.textContent;
                 const total = totalPagar.textContent;
                 
-                const tipoCuota = tipoCuotaHidden.value === 'sobre-saldos' ? 'Cuota sobre saldos' : 'Cuota nivelada';
+                const tipoCuota = tipoCuotaHidden.value;
                 
-                // Mensaje sin títulos FGARCIA
-                const mensaje = `*COTIZADOR DE CRÉDITOS*%0A%0A` +
-                               `*Monto:* ${monto}%0A` +
-                               `*Plazo:* ${plazo}%0A` +
-                               `*Tasa:* ${tasa}%0A` +
-                               `*Tipo:* ${tipoCuota}%0A` +
-                               `*Cuota fija:* ${cuota}%0A%0A` +
-                               `*Detalles:*%0A` +
-                               `• Primer pago: ${primer}%0A` +
-                               `• Último pago: ${ultimo}%0A` +
-                               `• Total intereses: ${intereses}%0A` +
-                               `• Total a pagar: ${total}`;
+                // Preparar mensaje según tipo de amortización
+                let mensaje = `*COTIZADOR DE CRÉDITOS*%0A%0A` +
+                             `*Monto:* ${monto}%0A` +
+                             `*Plazo:* ${plazo}%0A` +
+                             `*Tasa:* ${tasa}%0A` +
+                             `*Tipo:* ${tipo}%0A%0A`;
+                
+                if (tipoCuota === 'sobre-saldos') {
+                    const primer = primerPago.textContent;
+                    const ultimo = ultimoPago.textContent;
+                    mensaje += `*Primer pago:* ${primer}%0A` +
+                              `*Último pago:* ${ultimo}%0A`;
+                } else {
+                    const cuota = cuotaItem.textContent;
+                    mensaje += `*Cuota:* ${cuota}%0A`;
+                }
+                
+                mensaje += `%0A*Resumen:*%0A` +
+                          `• Total intereses: ${intereses}%0A` +
+                          `• Total a pagar: ${total}`;
                 
                 window.open(`https://wa.me/?text=${mensaje}`, '_blank');
                 
